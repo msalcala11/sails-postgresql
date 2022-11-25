@@ -2,9 +2,9 @@
  * Support functions for helping with Postgres tests
  */
 
-var pg = require('pg'),
-    _ = require('lodash'),
-    adapter = require('../../../lib/adapter');
+var { Pool } = require('pg')
+var  _ = require('lodash')
+var  adapter = require('../../../lib/adapter');
 
 var Support = module.exports = {};
 
@@ -97,7 +97,9 @@ Support.registerConnection = function(tableNames, cb) {
 
 // Remove a table
 Support.Teardown = function(tableName, cb) {
-  pg.connect(Support.Config, function(err, client, done) {
+  const pool = new Pool(Support.Config)
+
+  pool.connect(function(err, client, done) {
     dropTable(tableName, client, function(err) {
       if(err) {
         done();
@@ -115,12 +117,16 @@ Support.Teardown = function(tableName, cb) {
 
 // Return a client used for testing
 Support.Client = function(cb) {
-  pg.connect(Support.Config, cb);
+  const pool = new Pool(Support.Config)
+
+  pool.connect(/*Support.Config,*/ cb);
 };
 
 // Seed a record to use for testing
 Support.Seed = function(tableName, cb) {
-  pg.connect(Support.Config, function(err, client, done) {
+  const pool = new Pool(Support.Config)
+
+  pool.connect(function(err, client, done) {
     createRecord(tableName, client, function(err) {
       if(err) {
         done();
